@@ -24,6 +24,14 @@
 (global-whitespace-mode 1)
 (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
 
+(use-package diminish
+  :ensure t
+  :config
+  (diminish 'compile-angel-on-load-mode)
+  (diminish 'stripspace-local-mode)
+  (diminish 'eldoc-mode)
+  (diminish 'apheleia-mode))
+
 (use-package magit
   :ensure t)
 (use-package nano-theme
