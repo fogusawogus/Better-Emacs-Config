@@ -18,14 +18,17 @@
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 (setq split-height-threshold 0)
 (setq split-width-threshold nil)
+(setq select-enable-clipboard t)
+(setq select-enable-primary t)
+(setq meow-use-clipboard t)
 
 (use-package magit
   :ensure t)
 (use-package nano-theme
   :ensure t)
 (require 'view)
-(keymap-global-set "C-v" (lambda () (interactive) (View-scroll-half-page-forward) (move-to-window-line-top-bottom)))
-(keymap-global-set "M-v" (lambda () (interactive) (View-scroll-half-page-backward) (move-to-window-line-top-bottom)))
+(keymap-global-set "C-v" (lambda () (interactive) (View-scroll-half-page-forward) (move-to-window-line nil)))
+(keymap-global-set "M-v" (lambda () (interactive) (View-scroll-half-page-backward) (move-to-window-line nil)))
 
 (when (native-comp-available-p)
     (use-package compile-angel
