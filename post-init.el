@@ -22,7 +22,7 @@
 (setq select-enable-primary t)
 (setq meow-use-clipboard t)
 (global-whitespace-mode 1)
-(setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider))
+(setq eglot-ignored-server-capabilities '(:inlayHintProvider))
 
 (use-package magit
   :ensure t)
