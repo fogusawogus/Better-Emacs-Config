@@ -14,8 +14,6 @@
 (eldoc-add-command 'c-electric-paren)
 (advice-add #'magit-version :override #'ignore)
 (setq scroll-conservatively 101)
-(setq shell-file-name "C:/Program Files/Git/bin/bash.exe")
-(setq explicit-shell-file-name "C:/Program Files/Git/bin/bash.exe")
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 (setq split-height-threshold 0)
 (setq split-width-threshold nil)
@@ -373,10 +371,10 @@
    ("C-c z m" . kirigami-close-folds)        ; Close all folds
    ("C-c z a" . kirigami-toggle-fold)))      ; Toggle fold at point
 
-;; (use-package apheleia
-;;   :commands (apheleia-mode
-;;              apheleia-global-mode)
-;;   :hook ((prog-mode . apheleia-mode)))
+(use-package apheleia
+  :commands (apheleia-mode
+             apheleia-global-mode)
+  :hook ((prog-mode . apheleia-mode)))
 
 (use-package dumb-jump
   :commands dumb-jump-xref-activate
