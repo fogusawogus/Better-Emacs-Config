@@ -22,6 +22,7 @@
 (setq select-enable-primary t)
 (setq meow-use-clipboard t)
 (global-whitespace-mode 1)
+(setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider))
 
 (use-package magit
   :ensure t)
@@ -181,7 +182,7 @@
   (context-menu-mode t)
   (completion-ignore-case t)
   (corfu-auto t)
-  (corfu-auto-delay 1)
+  (corfu-auto-delay .2)
   (corfu-cycle t)
   (corfu-preselect 'prompt)
   :bind
