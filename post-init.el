@@ -1,3 +1,4 @@
+(load-file "~/.emacs.d/local.el")
 (set-frame-font "personal iosevka 16" t)
 (setq-default display-line-numbers-type 'relative)
 (dolist (hook '(prog-mode-hook text-mode-hook conf-mode-hook))
