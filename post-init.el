@@ -22,15 +22,22 @@
 (setq select-enable-primary t)
 (setq meow-use-clipboard t)
 (global-whitespace-mode 1)
-(setq eglot-ignored-server-capabilities '(:inlayHintProvider))
+(setq eglot-ignored-server-capabilities '(:eglotCodeActions :inlayHintProvider))
+(setq menu-bar-mode nil)
+
 
 (use-package diminish
+  :ensure t)
+
+(use-package ef-themes
+  :ensure t)
+
+(use-package doom-themes
   :ensure t
-  :config
-  (diminish 'compile-angel-on-load-mode)
-  (diminish 'stripspace-local-mode)
-  (diminish 'eldoc-mode)
-  (diminish 'apheleia-mode))
+  :custom
+  ;; Global settings (defaults)
+  (doom-themes-enable-bold t)   ; if nil, bold is universally disabled
+  (doom-themes-enable-italic t)) ; if nil, italics is universally disabled
 
 (use-package magit
   :ensure t)
@@ -81,7 +88,8 @@
     ;; A global mode that compiles .el files prior to loading them via `load' or
     ;; `require'. Additionally, it compiles all packages that were loaded before
     ;; the mode `compile-angel-on-load-mode' was activated.
-    (compile-angel-on-load-mode 1)))
+    (compile-angel-on-load-mode 1)
+    :diminish compile-angel-on-load-mode))
 
 (use-package exec-path-from-shell
   :if (and (or (display-graphic-p) (daemonp))
@@ -397,7 +405,8 @@
 (use-package apheleia
   :commands (apheleia-mode
              apheleia-global-mode)
-  :hook ((prog-mode . apheleia-mode)))
+  :hook ((prog-mode . apheleia-mode))
+  :diminish apheleia-mode)
 
 (use-package dumb-jump
   :commands dumb-jump-xref-activate
@@ -468,7 +477,8 @@
   ;; extra spaces and then save the file. Although the spaces are removed in the
   ;; saved file, the cursor remains in the same position, ensuring a consistent
   ;; editing experience without affecting cursor placement.
-  (stripspace-restore-column t))
+  (stripspace-restore-column t)
+  :diminish stripspace-local-mode)
 
 (use-package diff-hl
   :commands (diff-hl-mode
@@ -494,6 +504,10 @@
   ;; (org-fontify-whole-heading-line t)
   ;; (org-fontify-quote-and-verse-blocks t)
   (org-startup-truncated t))
+
+(setq org-directory "~/org/")
+(defun org-home () (interactive) (find-file "~/org/main.org"))
+(add-hook 'org-mode-hook 'visual-line-mode)
 
 (use-package org-appear
   :commands org-appear-mode
@@ -653,3 +667,54 @@
   :config
   (meow-setup)
   (meow-global-mode 1))
+
+(use-package elfeed
+  :ensure t)
+
+(setq elfeed-feeds
+      '("https://nesslabs.com/feed"
+        "https://feeds.feedburner.com/scotthyoung/HAHx"
+        "https://feeds.feedburner.com/bigthink/main"
+        "http://steveblank.com/feed/"
+        "http://ben-evans.com/benedictevans?format=rss"
+        "https://lethain.com/feeds/"
+        "https://hnrss.org/launches"
+        "https://blog.pragmaticengineer.com/rss/"
+        "https://medium.com/feed/paypal-engineering"
+        "http://engineering.grab.com/feed.xml"
+        "https://slack.engineering/feed"
+        "http://githubengineering.com/atom.xml"
+        "https://code.facebook.com/posts/rss"
+        "http://labs.spotify.com/feed/"
+        "https://instagram-engineering.com/feed"
+        "https://blog.cloudflare.com/rss/"
+        "https://medium.com/feed/airbnb-engineering"
+        "https://dropbox.tech/feed"
+        "https://browser.engineering/rss.xml"
+        "https://engineering.atspotify.com/feed/"
+        "https://engineering.fb.com/feed/"
+        "https://jvns.ca/atom.xml"
+        "https://sophiebits.com/atom.xml"
+        "https://amasad.me/rss"
+        "https://developer.nvidia.com/blog/feed"
+        "https://blog.ml.cmu.edu/feed/"
+        "http://news.mit.edu/rss/topic/artificial-intelligence2"
+        "http://bair.berkeley.edu/blog/feed.xml"
+        "https://thegradient.pub/rss/"
+        "http://googleresearch.blogspot.com/atom.xml"
+        "https://pytorch.org/feed"
+        "https://interaction-design.org/rss/site_news.xml"
+        "https://news.mit.edu/rss/topic/science-technology-and-society"
+        "https://news.mit.edu/rss/research"
+        "https://news.illinois.edu/feed/"
+        "https://xkcd.com/rss.xml"
+        "https://www.pff.com/feed/teams/6"))
+
+(use-package meson-mode
+  :ensure t)
+
+(setq eglot-booster-io-only t)
+
+(use-package odin-mode
+  :straight (odin-mode :type git :host nil :repo "https://github.com/mattt-b/odin-mode")
+  :ensure t)
