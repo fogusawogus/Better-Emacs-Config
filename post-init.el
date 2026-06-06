@@ -2,7 +2,7 @@
 (set-frame-font "personal iosevka 16" t)
 (with-eval-after-load 'eglot
   (fset #'eglot--snippet-expansion-fn #'ignore))
-(setq-default display-line-numbers-type 'relative)
+(setq-default display-line-numbers-type 'absolute)
 (dolist (hook '(prog-mode-hook text-mode-hook conf-mode-hook))
   (add-hook hook #'display-line-numbers-mode))
 (add-hook 'after-init-hook #'show-paren-mode)
@@ -198,7 +198,7 @@
   (context-menu-mode t)
   (completion-ignore-case t)
   (corfu-auto t)
-  (corfu-auto-delay .2)
+  (corfu-auto-delay .1)
   (corfu-cycle t)
   (corfu-preselect 'prompt)
   :bind
@@ -379,6 +379,7 @@
   (setq consult-narrow-key "<"))
 
 (use-package vundo
+  :bind ("C-c v" . vundo)
   :ensure t)
 
 (let ((inhibit-redisplay t))
@@ -717,4 +718,14 @@
 
 (use-package odin-mode
   :straight (odin-mode :type git :host nil :repo "https://github.com/mattt-b/odin-mode")
+  :ensure t)
+
+(use-package markdown-mode
+  :ensure t)
+
+(use-package avy
+  :bind
+  ("C-c a :" . avy-goto-char-1)
+  ("C-c a '" . avy-goto-char-2)
+  ("C-c a w" . avy-goto-word-1)
   :ensure t)
