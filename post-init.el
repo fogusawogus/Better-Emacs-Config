@@ -1,5 +1,7 @@
 (load-file "~/.emacs.d/local.el")
 (set-frame-font "personal iosevka 16" t)
+(with-eval-after-load 'eglot
+  (fset #'eglot--snippet-expansion-fn #'ignore))
 (setq-default display-line-numbers-type 'relative)
 (dolist (hook '(prog-mode-hook text-mode-hook conf-mode-hook))
   (add-hook hook #'display-line-numbers-mode))
@@ -20,7 +22,7 @@
 (setq select-enable-primary t)
 (setq meow-use-clipboard t)
 (global-whitespace-mode 1)
-(setq eglot-ignored-server-capabilities '(:eglotCodeActions :inlayHintProvider))
+(setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider))
 (setq menu-bar-mode nil)
 
 
