@@ -10,8 +10,6 @@
 (setq kept-new-versions 10)
 (with-eval-after-load 'cc-mode
   (define-key c-mode-base-map (kbd "TAB") #'indent-for-tab-command))
-(with-eval-after-load 'eglot
-  (fset #'eglot--snippet-expansion-fn #'ignore))
 (eldoc-add-command 'c-electric-paren)
 (advice-add #'magit-version :override #'ignore)
 (setq scroll-conservatively 101)
