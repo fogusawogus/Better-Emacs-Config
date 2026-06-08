@@ -40,7 +40,7 @@
   :config
   (let ((inhibit-redisplay t))
     (mapc #'disable-theme custom-enabled-themes)
-    (load-theme 'ef-dream t)))
+    (load-theme 'nano-dark t)))
 
 (use-package doom-themes
   :ensure t
