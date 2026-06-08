@@ -24,7 +24,12 @@
 (global-whitespace-mode 1)
 (setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider))
 (setq menu-bar-mode nil)
+(add-hook 'odin-mode-hook #'indent-tabs-mode)
+(setq frame-background-mode 'light)
 
+(defun to-projects () (interactive) (find-file "~/projects/"))
+
+(add-hook 'prog-mode-hook #'hs-minor-mode)
 
 (use-package diminish
   :ensure t)
@@ -36,8 +41,8 @@
   :ensure t
   :custom
   ;; Global settings (defaults)
-  (doom-themes-enable-bold t)   ; if nil, bold is universally disabled
-  (doom-themes-enable-italic t)) ; if nil, italics is universally disabled
+  (doom-themes-enable-bold nil)   ; if nil, bold is universally disabled
+  (doom-themes-enable-italic nil)) ; if nil, italics is universally disabled
 
 (use-package magit
   :ensure t)
@@ -198,7 +203,7 @@
   (context-menu-mode t)
   (completion-ignore-case t)
   (corfu-auto t)
-  (corfu-auto-delay .1)
+  (corfu-auto-delay .2)
   (corfu-cycle t)
   (corfu-preselect 'prompt)
   :bind
@@ -207,11 +212,11 @@
         ([tab] . corfu-next)
         ("S-TAB" . corfu-previous)
         ([backtab] . corfu-previous))
-  ;; :config
-  ;; (keymap-set corfu-map "RET" `(menu-item "" nil :filer
-  ;;                                         ,(lambda (&optional _)
-  ;;                                            (and (derived-mode-p 'eshell-mode 'comint-mode)
-  ;;                                                 #'corfu-send))))
+  :config
+  (keymap-set corfu-map "RET" `(menu-item "" nil :filer
+                                          ,(lambda (&optional _)
+                                             (and (derived-mode-p 'eshell-mode 'comint-mode)
+                                                  #'corfu-send))))
   :init
   (global-corfu-mode)
   (corfu-history-mode))
@@ -384,7 +389,7 @@
 
 (let ((inhibit-redisplay t))
   (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'nano-dark t))
+  (load-theme 'ef-dream t))
 
 (use-package kirigami
   :commands (kirigami-open-fold
@@ -725,7 +730,11 @@
 
 (use-package avy
   :bind
-  ("C-c a :" . avy-goto-char-1)
+  ("C-c a :" . avy-goto-char)
   ("C-c a '" . avy-goto-char-2)
   ("C-c a w" . avy-goto-word-1)
+  ("C-c a l" . avy-goto-line)
+  :ensure t)
+
+(use-package go-mode
   :ensure t)
