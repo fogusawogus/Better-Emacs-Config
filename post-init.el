@@ -25,17 +25,22 @@
 (setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider))
 (setq menu-bar-mode nil)
 (add-hook 'odin-mode-hook #'indent-tabs-mode)
-(setq frame-background-mode 'light)
 
 (defun to-projects () (interactive) (find-file "~/projects/"))
 
-(add-hook 'prog-mode-hook #'hs-minor-mode)
+(add-hook 'prog-mode-hook (lambda () (interactive) (hs-minor-mode) (diminish 'hs-minor-mode "")))
 
 (use-package diminish
   :ensure t)
 
 (use-package ef-themes
-  :ensure t)
+  ;; stupid plugin doesnt load fonts correctly unless i do this
+  :defer .000001
+  :ensure t
+  :config
+  (let ((inhibit-redisplay t))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme 'ef-dream t)))
 
 (use-package doom-themes
   :ensure t
@@ -387,9 +392,6 @@
   :bind ("C-c v" . vundo)
   :ensure t)
 
-(let ((inhibit-redisplay t))
-  (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'ef-dream t))
 
 (use-package kirigami
   :commands (kirigami-open-fold
