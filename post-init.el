@@ -35,12 +35,13 @@
 
 (use-package ef-themes
   ;; stupid plugin doesnt load fonts correctly unless i do this
-  :defer .000001
-  :ensure t
-  :config
-  (let ((inhibit-redisplay t))
-    (mapc #'disable-theme custom-enabled-themes)
-    (load-theme 'nano-dark t)))
+  ;; :defer .000001
+  ;; :after corfu
+  :ensure t)
+
+(let ((inhibit-redisplay t))
+  (mapc #'disable-theme custom-enabled-themes)
+  (load-theme 'ef-dream t))
 
 (use-package doom-themes
   :ensure t
@@ -51,8 +52,8 @@
 
 (use-package magit
   :ensure t)
-(use-package nano-theme
-  :ensure t)
+;; (use-package nano-theme
+;;   :ensure t)
 (require 'view)
 (keymap-global-set "C-v" (lambda () (interactive) (View-scroll-half-page-forward) (move-to-window-line nil)))
 (keymap-global-set "M-v" (lambda () (interactive) (View-scroll-half-page-backward) (move-to-window-line nil)))
@@ -195,6 +196,23 @@
 ;; Trigger an auto-save 30 seconds of idle time.
 (setq auto-save-timeout 30)
 
+;; (use-package company
+;;   :ensure t
+;;   :config
+;;   (add-hook 'after-init-hook 'company-tng-mode)
+;;   (add-hook 'after-init-hook 'global-company-mode))
+;;
+;; (use-package company-posframe
+;;   :ensure t
+;;   :config
+;;   (add-hook 'company-completion-started-hook (lambda (&rest _) (load-theme 'ef-dream t)))
+;;   (setq company-tooltip-minimum-width 40)
+;;   (company-posframe-mode t))
+
+;; (defun one-time-load-theme (&optional _)
+;;   (add-hook 'completion-at-point-functions (lambda (&optional _) (load-theme 'ef-dream t)))
+;;   (remove-hook 'completion-at-point-functions #'one-time-load-theme))
+
 (use-package corfu
   :ensure t
   :hook ((prog-mode . corfu-mode)
@@ -208,11 +226,12 @@
   (context-menu-mode t)
   (completion-ignore-case t)
   (corfu-auto t)
-  (corfu-auto-delay .2)
+  (corfu-auto-delay .1)
   (corfu-cycle t)
   (corfu-preselect 'prompt)
   :bind
   (:map corfu-map
+        ("C-SPC" . corfu-info-documentation)
         ("TAB" . corfu-next)
         ([tab] . corfu-next)
         ("S-TAB" . corfu-previous)
@@ -222,6 +241,7 @@
                                           ,(lambda (&optional _)
                                              (and (derived-mode-p 'eshell-mode 'comint-mode)
                                                   #'corfu-send))))
+  ;; (add-hook 'completion-at-point-functions #'one-time-load-theme)
   :init
   (global-corfu-mode)
   (corfu-history-mode))
@@ -243,10 +263,12 @@
   ;; used by `completion-at-point'.  The order of the functions matters, the
   ;; first function returning a result wins.  Note that the list of buffer-local
   ;; completion functions takes precedence over the global list.
-  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions (cape-capf-super #'cape-dabbrev #'cape-history #'cape-elisp-block #'cape-history #'cape-dict))
+  ;; (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
-  (add-hook 'completion-at-point-functions #'cape-elisp-block)
-  ;; ...
+  ;; (add-hook 'completion-at-point-functions #'cape-history)
+  ;; (add-hook 'completion-at-point-functions #'cape-dict)
+  ;; (add-hook 'completion-at-point-functions #'cape-elisp-block)
   )
 
 (use-package vertico
@@ -539,6 +561,11 @@
   :ensure t
   :config
   (prescient-persist-mode 1))
+
+;; (use-package company-prescient
+;;   :ensure t
+;;   :config
+;;   (company-prescient-mode 1))
 
 (use-package corfu-prescient
   :ensure t
