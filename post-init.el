@@ -22,7 +22,7 @@
 (setq select-enable-primary t)
 (setq meow-use-clipboard t)
 (global-whitespace-mode 1)
-;; (setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider :documentHighlightProvider :colorProvider :hoverProdiver :codeLensProvider))
+(setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider :documentHighlightProvider :colorProvider :hoverProdiver :codeLensProvider))
 (setq menu-bar-mode nil)
 (add-hook 'odin-mode-hook #'indent-tabs-mode)
 
@@ -227,8 +227,8 @@
   (enable-recursive-minibuffers t)
   (context-menu-mode t)
   (completion-ignore-case t)
-  ;; (corfu-auto t)
-  ;; (corfu-auto-delay .1)
+  (corfu-auto t)
+  (corfu-auto-delay 0)
   (corfu-cycle t)
   (corfu-preselect 'prompt)
   :bind
@@ -245,8 +245,8 @@
                                                   #'corfu-send))))
   ;; (add-hook 'completion-at-point-functions #'one-time-load-theme)
   :init
-  (global-corfu-mode)
-  (corfu-history-mode))
+  (corfu-history-mode t)
+  (global-corfu-mode))
 ;; :bind ("C-x C-o" . ))
 
 (use-package cape
@@ -710,6 +710,33 @@
   :config
   (meow-setup)
   (meow-global-mode 1))
+
+(setq meow-two-char-escape-sequence "jk")
+(setq meow-two-char-escape-delay 0.5)
+
+(defun meow--two-char-exit-insert-state (s)
+  (when (meow-insert-mode-p)
+    (let ((modified (buffer-modified-p)))
+      (insert (elt s 0))
+      (let* ((second-char (elt s 1))
+             (event
+              (if defining-kbd-macro
+                  (read-event nil nil)
+                (read-event nil nil meow-two-char-escape-delay))))
+        (when event
+          (if (and (characterp event) (= event second-char))
+              (progn
+                (backward-delete-char 1)
+                (set-buffer-modified-p modified)
+                (meow--execute-kbd-macro "<escape>"))
+            (push event unread-command-events)))))))
+
+(defun meow-two-char-exit-insert-state ()
+  (interactive)
+  (meow--two-char-exit-insert-state meow-two-char-escape-sequence))
+
+(define-key meow-insert-state-keymap (substring meow-two-char-escape-sequence 0 1)
+            #'meow-two-char-exit-insert-state)
 
 (use-package elfeed
   :ensure t)
