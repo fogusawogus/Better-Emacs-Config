@@ -22,7 +22,7 @@
 (setq select-enable-primary t)
 (setq meow-use-clipboard t)
 (global-whitespace-mode 1)
-(setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider))
+;; (setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider :documentHighlightProvider :colorProvider :hoverProdiver :codeLensProvider))
 (setq menu-bar-mode nil)
 (add-hook 'odin-mode-hook #'indent-tabs-mode)
 
@@ -92,6 +92,8 @@
     (push "/post-init.el" compile-angel-excluded-files)
     (push "/pre-early-init.el" compile-angel-excluded-files)
     (push "/post-early-init.el" compile-angel-excluded-files)
+    (push "/custom.el" compile-angel-excluded-files)
+    (push "/local.el" compile-angel-excluded-files)
 
     ;; A local mode that compiles .el files whenever the user saves them.
     ;; (add-hook 'emacs-lisp-mode-hook #'compile-angel-on-save-local-mode)
@@ -225,8 +227,8 @@
   (enable-recursive-minibuffers t)
   (context-menu-mode t)
   (completion-ignore-case t)
-  (corfu-auto t)
-  (corfu-auto-delay .1)
+  ;; (corfu-auto t)
+  ;; (corfu-auto-delay .1)
   (corfu-cycle t)
   (corfu-preselect 'prompt)
   :bind
@@ -458,6 +460,7 @@
   ;; providing a consistent minibuffer-based interface whenever multiple
   ;; definitions are found.
   (setq dumb-jump-selector 'completing-read)
+  (setq dumb-jump-rg-search-args "--pcre2 --follow")
 
   ;; If ripgrep is available, force `dumb-jump' to use it because it is
   ;; significantly faster and more accurate than the default searchers (grep,
@@ -547,7 +550,9 @@
   :ensure nil
   :commands (eglot-ensure
              eglot-rename
-             eglot-format-buffer))
+             eglot-format-buffer)
+  :config
+  (add-to-list 'eglot-stay-out-of 'flymake))
 
 
 (use-package elec-pair
@@ -577,19 +582,22 @@
   :config
   (corfu-prescient-mode 1))
 
-(use-package flycheck
-  :ensure t)
+;; (use-package flycheck
+;;   :ensure t
+;;   :config
+;;   (setq flycheck-check-syntax-automatically '(save))
+;;   (setq flycheck-highlighting-mode nil))
 
 (use-package eglot-booster
   :straight (eglot-booster :type git :host nil :repo "https://github.com/jdtsmith/eglot-booster")
   :after eglot
   :config (eglot-booster-mode))
 
-(use-package flycheck-eglot
-  :ensure t
-  :after (flycheck eglot)
-  :config
-  (global-flycheck-eglot-mode 1))
+;; (use-package flycheck-eglot
+;;   :ensure t
+;;   :after (flycheck eglot)
+;;   :config
+;;   (global-flycheck-eglot-mode 1))
 
 (use-package surround
   :ensure t
@@ -767,3 +775,9 @@
 
 (use-package go-mode
   :ensure t)
+
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
