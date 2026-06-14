@@ -21,22 +21,27 @@
 (setq select-enable-clipboard t)
 (setq select-enable-primary t)
 (setq meow-use-clipboard t)
+(setq meow-keypad-describe-delay 10)
 (global-whitespace-mode 1)
-(setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider :documentHighlightProvider :colorProvider :hoverProdiver :codeLensProvider))
+(setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider :documentHighlightProvider :colorProvider :hoverProdiver :codeLensProvider :semanticTokensProvider))
 (setq menu-bar-mode nil)
+(setq font-lock-maximum-decoration nil)
 (add-hook 'odin-mode-hook #'indent-tabs-mode)
+(global-visual-line-mode t)
 
 (defun to-projects () (interactive) (find-file "~/projects/"))
 
 (add-hook 'prog-mode-hook (lambda () (interactive) (hs-minor-mode) (diminish 'hs-minor-mode "")))
+(add-hook 'after-init-hook (lambda () (interactive) (diminish 'whitespace-mode "")))
+(add-hook 'after-init-hook (lambda () (interactive) (diminish 'visual-line-mode "")))
 
 (use-package diminish
   :ensure t)
 
+(use-package eldoc
+  :diminish)
+
 (use-package ef-themes
-  ;; stupid plugin doesnt load fonts correctly unless i do this
-  ;; :defer .000001
-  ;; :after corfu
   :ensure t)
 
 (let ((inhibit-redisplay t))
@@ -53,6 +58,7 @@
 (use-package magit
   :ensure t)
 ;; (use-package nano-theme
+;;   goofy ahh plugin setting global font faces despite not being used
 ;;   :ensure t)
 (require 'view)
 (keymap-global-set "C-v" (lambda () (interactive) (View-scroll-half-page-forward) (move-to-window-line nil)))
@@ -111,13 +117,14 @@
   :functions exec-path-from-shell-initialize
   :config
   (dolist (var '("TMPDIR"
+                 "LLDB_DAP"
                  "SSH_AUTH_SOCK" "SSH_AGENT_PID"
                  "GPG_AGENT_INFO"
                  ;; "FZF_DEFAULT_COMMAND" "FZF_DEFAULT_OPTS" ; fzf
-                 ;; "VIRTUAL_ENV" ; Python
-                 ;; "GOPATH" "GOROOT" "GOBIN" ; Go
+                 "VIRTUAL_ENV" ; Python
+                 "GOPATH" "GOROOT" "GOBIN" ; Go
                  ;; "CARGO_HOME" "RUSTUP_HOME" ; Rust
-                 ;; "NVM_DIR" "NODE_PATH" ; Node/JS
+                 "NVM_DIR" "NODE_PATH" ; Node/JS
                  "LANG" "LC_CTYPE"))
     (add-to-list 'exec-path-from-shell-variables var))
   ;; Initialize
@@ -132,7 +139,7 @@
   :hook
   (after-init . global-auto-revert-mode)
   :init
-  ;; (setq auto-revert-verbose t)
+  (setq auto-revert-verbose nil)
   (setq auto-revert-interval 3)
   (setq auto-revert-remote-files nil)
   (setq auto-revert-use-notify t)
@@ -198,80 +205,80 @@
 ;; Trigger an auto-save 30 seconds of idle time.
 (setq auto-save-timeout 30)
 
-;; (use-package company
-;;   :ensure t
-;;   :config
-;;   (add-hook 'after-init-hook 'company-tng-mode)
-;;   (add-hook 'after-init-hook 'global-company-mode))
-;;
-;; (use-package company-posframe
-;;   :ensure t
-;;   :config
-;;   (add-hook 'company-completion-started-hook (lambda (&rest _) (load-theme 'ef-dream t)))
-;;   (setq company-tooltip-minimum-width 40)
-;;   (company-posframe-mode t))
+(use-package company
+  ;; see company childframe frontend
+  :ensure t
+  :config
+  (add-hook 'after-init-hook 'company-tng-mode)
+  (add-hook 'after-init-hook 'global-company-mode)
+  (setq company-tng-auto-configure nil)
+  (setq company-tng-map t)
+  (setq company-frontends '(company-childframe-unless-just-one-frontend
+                            company-preview-if-just-one-frontend
+                            company-echo-metadata-frontend))
+  (setq company-tooltip-align-annotations t))
 
 ;; (defun one-time-load-theme (&optional _)
 ;;   (add-hook 'completion-at-point-functions (lambda (&optional _) (load-theme 'ef-dream t)))
 ;;   (remove-hook 'completion-at-point-functions #'one-time-load-theme))
 
-(use-package corfu
-  :ensure t
-  :hook ((prog-mode . corfu-mode)
-         (shell-mode . corfu-mode)
-         (eshell-mode . corfu-mode))
-  :custom
-  (read-extended-command-predicate #'command-completion-default-include-p)
-  (text-mode-ispell-word-completion nil)
-  (tab-always-indent 'complete)
-  (enable-recursive-minibuffers t)
-  (context-menu-mode t)
-  (completion-ignore-case t)
-  (corfu-auto t)
-  (corfu-auto-delay 0)
-  (corfu-cycle t)
-  (corfu-preselect 'prompt)
-  :bind
-  (:map corfu-map
-        ("C-SPC" . corfu-info-documentation)
-        ("TAB" . corfu-next)
-        ([tab] . corfu-next)
-        ("S-TAB" . corfu-previous)
-        ([backtab] . corfu-previous))
-  :config
-  (keymap-set corfu-map "RET" `(menu-item "" nil :filer
-                                          ,(lambda (&optional _)
-                                             (and (derived-mode-p 'eshell-mode 'comint-mode)
-                                                  #'corfu-send))))
-  ;; (add-hook 'completion-at-point-functions #'one-time-load-theme)
-  :init
-  (corfu-history-mode t)
-  (global-corfu-mode))
-;; :bind ("C-x C-o" . ))
-
-(use-package cape
-  :ensure t
-  ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
-  ;; Press C-c p ? to for help.
-  :commands (cape-dabbrev cape-file cape-elisp-block )
-  :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
-  ;; Alternatively bind Cape commands individually.
-  ;; :bind (("C-c p d" . cape-dabbrev)
-  ;;        ("C-c p h" . cape-history)
-  ;;        ("C-c p f" . cape-file)
-  ;;        ...)
-  :init
-  ;; Add to the global default value of `completion-at-point-functions' which is
-  ;; used by `completion-at-point'.  The order of the functions matters, the
-  ;; first function returning a result wins.  Note that the list of buffer-local
-  ;; completion functions takes precedence over the global list.
-  (add-hook 'completion-at-point-functions (cape-capf-super #'cape-dabbrev #'cape-history #'cape-elisp-block #'cape-history #'cape-dict))
-  ;; (add-hook 'completion-at-point-functions #'cape-dabbrev)
-  (add-hook 'completion-at-point-functions #'cape-file)
-  ;; (add-hook 'completion-at-point-functions #'cape-history)
-  ;; (add-hook 'completion-at-point-functions #'cape-dict)
-  ;; (add-hook 'completion-at-point-functions #'cape-elisp-block)
-  )
+;; (use-package corfu
+;;   :ensure t
+;;   :hook ((prog-mode . corfu-mode)
+;;          (shell-mode . corfu-mode)
+;;          (eshell-mode . corfu-mode))
+;;   :custom
+;;   (read-extended-command-predicate #'command-completion-default-include-p)
+;;   (text-mode-ispell-word-completion nil)
+;;   (tab-always-indent 'complete)
+;;   (enable-recursive-minibuffers t)
+;;   (context-menu-mode t)
+;;   (completion-ignore-case t)
+;;   (corfu-auto t)
+;;   (corfu-auto-delay .2)
+;;   (corfu-cycle t)
+;;   (corfu-preselect 'prompt)
+;;   :bind
+;;   (:map corfu-map
+;;         ("C-SPC" . corfu-info-documentation)
+;;         ("TAB" . corfu-next)
+;;         ([tab] . corfu-next)
+;;         ("S-TAB" . corfu-previous)
+;;         ([backtab] . corfu-previous))
+;;   :config
+;;   (keymap-set corfu-map "RET" `(menu-item "" nil :filer
+;;                                           ,(lambda (&optional _)
+;;                                              (and (derived-mode-p 'eshell-mode 'comint-mode)
+;;                                                   #'corfu-send))))
+;;   :init
+;;   (corfu-history-mode t)
+;;   (corfu-echo-mode t)
+;;   (global-corfu-mode))
+;; ;; :bind ("C-x C-o" . ))
+;;
+;; (use-package cape
+;;   :ensure t
+;;   ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+;;   ;; Press C-c p ? to for help.
+;;   :commands (cape-dabbrev cape-file cape-elisp-block )
+;;   :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+;;   ;; Alternatively bind Cape commands individually.
+;;   ;; :bind (("C-c p d" . cape-dabbrev)
+;;   ;;        ("C-c p h" . cape-history)
+;;   ;;        ("C-c p f" . cape-file)
+;;   ;;        ...)
+;;   :init
+;;   ;; Add to the global default value of `completion-at-point-functions' which is
+;;   ;; used by `completion-at-point'.  The order of the functions matters, the
+;;   ;; first function returning a result wins.  Note that the list of buffer-local
+;;   ;; completion functions takes precedence over the global list.
+;;   ;; (add-hook 'completion-at-point-functions (cape-capf-super #'cape-dabbrev #'cape-history #'cape-elisp-block #'cape-history #'cape-dict))
+;;   (add-hook 'completion-at-point-functions #'cape-dabbrev)
+;;   (add-hook 'completion-at-point-functions #'cape-file)
+;;   (add-hook 'completion-at-point-functions #'cape-history)
+;;   (add-hook 'completion-at-point-functions #'cape-dict)
+;;   (add-hook 'completion-at-point-functions #'cape-elisp-block)
+;;   )
 
 (use-package vertico
   :ensure t
@@ -322,58 +329,59 @@
   (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package consult
-  :bind (;; C-c bindings in `mode-specific-map'
-         ("C-c M-x" . consult-mode-command)
-         ("C-c h" . consult-history)
-         ("C-c k" . consult-kmacro)
-         ("C-c m" . consult-man)
-         ("C-c i" . consult-info)
-         ([remap Info-search] . consult-info)
-         ;; C-x bindings in `ctl-x-map'
-         ("C-x M-:" . consult-complex-command)
-         ("C-x b" . consult-buffer)
-         ("C-x 4 b" . consult-buffer-other-window)
-         ("C-x 5 b" . consult-buffer-other-frame)
-         ("C-x t b" . consult-buffer-other-tab)
-         ("C-x r b" . consult-bookmark)
-         ("C-x p b" . consult-project-buffer)
-         ;; Custom M-# bindings for fast register access
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)
-         ("C-M-#" . consult-register)
-         ;; Other custom bindings
-         ("M-y" . consult-yank-pop)
-         ;; M-g bindings in `goto-map'
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)
-         ("M-g g" . consult-goto-line)
-         ("M-g M-g" . consult-goto-line)
-         ("M-g o" . consult-outline)
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ;; M-s bindings in `search-map'
-         ("M-s d" . consult-find)
-         ("M-s c" . consult-locate)
-         ("M-s g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
-         ;; Isearch integration
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)
-         ("M-s e" . consult-isearch-history)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ;; Minibuffer history
-         :map minibuffer-local-map
-         ("M-s" . consult-history)
-         ("M-r" . consult-history))
+  :ensure t
+  ;; :bind (;; C-c bindings in `mode-specific-map'
+  ;;        ("C-c M-x" . consult-mode-command)
+  ;;        ("C-c h" . consult-history)
+  ;;        ("C-c k" . consult-kmacro)
+  ;;        ("C-c m" . consult-man)
+  ;;        ("C-c i" . consult-info)
+  ;;        ([remap Info-search] . consult-info)
+  ;;        ;; C-x bindings in `ctl-x-map'
+  ;;        ("C-x M-:" . consult-complex-command)
+  ;;        ("C-x b" . consult-buffer)
+  ;;        ("C-x 4 b" . consult-buffer-other-window)
+  ;;        ("C-x 5 b" . consult-buffer-other-frame)
+  ;;        ("C-x t b" . consult-buffer-other-tab)
+  ;;        ("C-x r b" . consult-bookmark)
+  ;;        ("C-x p b" . consult-project-buffer)
+  ;;        ;; Custom M-# bindings for fast register access
+  ;;        ("M-#" . consult-register-load)
+  ;;        ("M-'" . consult-register-store)
+  ;;        ("C-M-#" . consult-register)
+  ;;        ;; Other custom bindings
+  ;;        ("M-y" . consult-yank-pop)
+  ;;        ;; M-g bindings in `goto-map'
+  ;;        ("M-g e" . consult-compile-error)
+  ;;        ("M-g f" . consult-flymake)
+  ;;        ("M-g g" . consult-goto-line)
+  ;;        ("M-g M-g" . consult-goto-line)
+  ;;        ("M-g o" . consult-outline)
+  ;;        ("M-g m" . consult-mark)
+  ;;        ("M-g k" . consult-global-mark)
+  ;;        ("M-g i" . consult-imenu)
+  ;;        ("M-g I" . consult-imenu-multi)
+  ;;        ;; M-s bindings in `search-map'
+  ;;        ("M-s d" . consult-find)
+  ;;        ("M-s c" . consult-locate)
+  ;;        ("M-s g" . consult-grep)
+  ;;        ("M-s G" . consult-git-grep)
+  ;;        ("M-s r" . consult-ripgrep)
+  ;;        ("M-s l" . consult-line)
+  ;;        ("M-s L" . consult-line-multi)
+  ;;        ("M-s k" . consult-keep-lines)
+  ;;        ("M-s u" . consult-focus-lines)
+  ;;        ;; Isearch integration
+  ;;        ("M-s e" . consult-isearch-history)
+  ;;        :map isearch-mode-map
+  ;;        ("M-e" . consult-isearch-history)
+  ;;        ("M-s e" . consult-isearch-history)
+  ;;        ("M-s l" . consult-line)
+  ;;        ("M-s L" . consult-line-multi)
+  ;;        ;; Minibuffer history
+  ;;        :map minibuffer-local-map
+  ;;        ("M-s" . consult-history)
+  ;;        ("M-r" . consult-history))
 
   ;; Enable automatic preview at point in the *Completions* buffer.
   :hook (completion-list-mode . consult-preview-at-point-mode)
@@ -424,15 +432,15 @@
              kirigami-toggle-fold
              kirigami-open-folds
              kirigami-close-folds-except-current
-             kirigami-close-folds)
+             kirigami-close-folds))
 
-  :bind
-  (("C-c z o" . kirigami-open-fold)          ; Open fold at point
-   ("C-c z O" . kirigami-open-fold-rec)      ; Open fold recursively
-   ("C-c z r" . kirigami-open-folds)         ; Open all folds
-   ("C-c z c" . kirigami-close-fold)         ; Close fold at point
-   ("C-c z m" . kirigami-close-folds)        ; Close all folds
-   ("C-c z a" . kirigami-toggle-fold)))      ; Toggle fold at point
+;; :bind
+;; (("C-c z o" . kirigami-open-fold)          ; Open fold at point
+;;  ("C-c z O" . kirigami-open-fold-rec)      ; Open fold recursively
+;;  ("C-c z r" . kirigami-open-folds)         ; Open all folds
+;;  ("C-c z c" . kirigami-close-fold)         ; Close fold at point
+;;  ("C-c z m" . kirigami-close-folds)        ; Close all folds
+;;  ("C-c z a" . kirigami-toggle-fold)))      ; Toggle fold at point
 
 (use-package apheleia
   :commands (apheleia-mode
@@ -520,8 +528,7 @@
   :init
   (setq diff-hl-flydiff-delay 0.4)  ; Faster
   (setq diff-hl-show-staged-changes nil)  ; Realtime feedback
-  (setq diff-hl-update-async t)  ; Do not block Emacs
-  (setq diff-hl-global-modes '(not pdf-view-mode image-mode)))
+  (setq diff-hl-update-async t))  ; Do not block Emacs
 
 (use-package org
   :commands (org-mode org-version)
@@ -540,7 +547,6 @@
 
 (setq org-directory "~/org/")
 (defun org-home () (interactive) (find-file "~/org/main.org"))
-(add-hook 'org-mode-hook 'visual-line-mode)
 
 (use-package org-appear
   :commands org-appear-mode
@@ -567,20 +573,20 @@
   :config
   (prescient-persist-mode 1))
 
-;; (use-package company-prescient
-;;   :ensure t
-;;   :config
-;;   (company-prescient-mode 1))
-
-(use-package corfu-prescient
+(use-package company-prescient
   :ensure t
-  :after corfu prescient
-  :custom
-  (corfu-prescient-enable-sorting t)
-  (corfu-prescient-override-sorting nil)
-  (corfu-prescient-enable-filtering nil)
   :config
-  (corfu-prescient-mode 1))
+  (company-prescient-mode 1))
+
+;; (use-package corfu-prescient
+;;   :ensure t
+;;   :after corfu prescient
+;;   :custom
+;;   (corfu-prescient-enable-sorting t)
+;;   (corfu-prescient-override-sorting nil)
+;;   (corfu-prescient-enable-filtering nil)
+;;   :config
+;;   (corfu-prescient-mode 1))
 
 ;; (use-package flycheck
 ;;   :ensure t
@@ -776,12 +782,10 @@
         "https://interaction-design.org/rss/site_news.xml"
         "https://news.mit.edu/rss/topic/science-technology-and-society"
         "https://news.mit.edu/rss/research"
-        "https://news.illinois.edu/feed/"
+        ("https://news.illinois.edu/feed/" uiuc)
         "https://xkcd.com/rss.xml"
         "https://www.pff.com/feed/teams/6"
-        "http://feeds.reuters.com/Reuters/PoliticsNews"
-        "http://feeds.reuters.com/reuters/entertainment"
-        "http://feeds.reuters.com/news/economy"))
+        ("https://feeds.npr.org/1001/rss.xml")))
 
 (use-package meson-mode
   :ensure t)
@@ -806,42 +810,75 @@
 (use-package go-mode
   :ensure t)
 
-(use-package kind-icon
+(use-package eat
+  :ensure t)
+
+(use-package dape
   :ensure t
-  :after corfu
-  :config
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+  :preface
+  (setq dape-key-prefix "\C-cd")
 
-(use-package auto-package-update
   :custom
-  ;; Set the number of days between automatic updates.
-  ;; Here, packages will only be updated if at least 7 days have passed
-  ;; since the last successful update.
-  (auto-package-update-interval 7)
+  (dape-breakpoint-global-mode t))
 
-  ;; Suppress display of the *auto-package-update results* buffer after updates.
-  ;; This keeps the user interface clean and avoids unnecessary interruptions.
-  (auto-package-update-hide-results t)
+(use-package hydra
+  :ensure t
+  :bind (("C-c d" . hydra-dape/body)
+         ("C-c z" . hydra-kirigami/body)
+         ("C-c a" . hydra-avy/body)
+         ("C-c f" . hydra-consult/body)
+         ("C-c s" . hydra-surround/body)))
 
-  ;; Automatically delete old package versions after updates to reduce disk
-  ;; usage and keep the package directory clean. This prevents the accumulation
-  ;; of outdated files in Emacs's package directory, which consume
-  ;; unnecessary disk space over time.
-  (auto-package-update-delete-old-versions t)
+(defhydra hydra-dape (:color pink :foreign-keys run)
+  "Dape"
+  ("q" dape-quit "Quit" :column "Exit" :color blue)
+  ("d" dape "Start" :column "Dape")
+  ("n" dape-next "Next")
+  ("p" dape-previous "Previous")
+  ("b" dape-breakpoint-toggle "Breakpoint at line")
+  ("s" dape-step-in "Step in")
+  ("o" dape-step-out "Step out")
+  ("r" dape-restart "Restart")
+  ("w" dape-watch-dwim "Watch variable"))
 
-  ;; Uncomment the following line to enable a confirmation prompt
-  ;; before applying updates. This can be useful if you want manual control.
-  ;; (auto-package-update-prompt-before-update t)
+(defhydra hydra-kirigami (:color pink :foreign-keys run)
+  "Kirigami"
+  ("q" nil "Exit" :column "Quit" :color blue)
+  ("a" kirigami-toggle-fold "Toggle fold" :column "Kirigami")
+  ("r" kirigami-open-folds "Open all folds")
+  ("m" kirigami-close-folds "Close all folds"))
 
-  :config
-  ;; Run package updates automatically at startup, but only if the configured
-  ;; interval has elapsed.
-  (auto-package-update-maybe)
+(defhydra hydra-avy (:color blue)
+  "Avy"
+  ("w" avy-goto-word-1 "Go to word" :column "Avy")
+  ("l" avy-goto-line "Go to line")
+  ("c" avy-goto-char "Go to char"))
 
-  ;; Schedule a background update attempt daily at 10:00 AM.
-  ;; This uses Emacs' internal timer system. If Emacs is running at that time,
-  ;; the update will be triggered. Otherwise, the update is skipped for that
-  ;; day. Note that this scheduled update is independent of
-  ;; `auto-package-update-maybe` and can be used as a complementary or
-  ;; alternative mechanism.
-  (auto-package-update-at-time "10:00"))
+(defhydra hydra-consult (:color blue)
+  "Consult"
+  ("q" nil "Exit" :column "Quit")
+  ("g" consult-ripgrep "Ripgrep" :column "Consult")
+  ("f" consult-find "Find")
+  ("b" consult-buffer "Buffers")
+  ("l" consult-focus-lines "Lines")
+  ("d" consult-imenu "Definitions")
+  ("o" consult-outline "Outline"))
+
+(defhydra hydra-surround (:color blue)
+  "Surround"
+  ("q" nil "Exit" :column "Quit")
+  ("i" surround-insert "Insert pair" :column "Surround")
+  ("y" surround-kill "Kill in pair")
+  ("c" surround-change "Change pair")
+  ("d" surround-delete "Delete pair"))
+
+(use-package which-key
+  :diminish
+  :ensure nil
+  :commands which-key-mode
+  :hook (after-init . which-key-mode)
+  :custom
+  (which-key-idle-delay 1.5)
+  (which-key-idle-secondary-delay 0.25)
+  (which-key-add-column-padding 1)
+  (which-key-max-description-length 40))
