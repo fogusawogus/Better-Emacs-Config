@@ -25,23 +25,27 @@
 (global-whitespace-mode 1)
 (setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider :documentHighlightProvider :colorProvider :hoverProdiver :codeLensProvider :semanticTokensProvider))
 (setq menu-bar-mode nil)
-(setq font-lock-maximum-decoration nil)
-(add-hook 'odin-mode-hook #'indent-tabs-mode)
 (global-visual-line-mode t)
 
-(defun to-projects () (interactive) (find-file "~/projects/"))
+(add-hook 'c++-mode-hook
+          (lambda ()
+            (setq c-basic-offset 4)))
+
+(defun to-projects () "Go to projects folder" (interactive) (find-file "~/projects/"))
 
 (add-hook 'prog-mode-hook (lambda () (interactive) (hs-minor-mode) (diminish 'hs-minor-mode "")))
 (add-hook 'after-init-hook (lambda () (interactive) (diminish 'whitespace-mode "")))
 (add-hook 'after-init-hook (lambda () (interactive) (diminish 'visual-line-mode "")))
+(add-hook 'prog-mode-hook (lambda () (interactive) (diminish 'eldoc-mode "")))
+(add-hook 'prog-mode-hook (lambda () (interactive) (diminish 'abbrev-mode "")))
 
 (use-package diminish
   :ensure t)
 
-(use-package eldoc
-  :diminish)
-
 (use-package ef-themes
+  :ensure t)
+
+(use-package doric-themes
   :ensure t)
 
 (let ((inhibit-redisplay t))
@@ -207,20 +211,24 @@
 
 (use-package company
   ;; see company childframe frontend
+  ;; make sure to change company-tng in ./var/straight/build/company/company-tng.el
   :ensure t
   :config
   (add-hook 'after-init-hook 'company-tng-mode)
   (add-hook 'after-init-hook 'global-company-mode)
-  (setq company-tng-auto-configure nil)
-  (setq company-tng-map t)
-  (setq company-frontends '(company-childframe-unless-just-one-frontend
-                            company-preview-if-just-one-frontend
-                            company-echo-metadata-frontend))
+  (setq completion-ignore-case t)
+  (setq company-minimum-prefix-length 2)
+  (setq company-idle-delay 0)
+  (setq company-inhibit-inside-symbols t)
+  (setq company-backends '((company-capf company-dabbrev-code company-files company-ispell company-yasnippet)))
+  (setq company-dabbrev-code-ignore-case t)
+  (setq company-files-exclusions '(".git/" ".DS_Store" "makefile"))
+  (setq company-dabbrev-downcase nil)
+  (setq company-dabbrev-ignore-case t)
+  (setq company-transformers '(delete-consecutive-dups
+                               company-sort-by-occurrence
+                               company-sort-prefer-same-case-prefix))
   (setq company-tooltip-align-annotations t))
-
-;; (defun one-time-load-theme (&optional _)
-;;   (add-hook 'completion-at-point-functions (lambda (&optional _) (load-theme 'ef-dream t)))
-;;   (remove-hook 'completion-at-point-functions #'one-time-load-theme))
 
 ;; (use-package corfu
 ;;   :ensure t
@@ -442,11 +450,11 @@
 ;;  ("C-c z m" . kirigami-close-folds)        ; Close all folds
 ;;  ("C-c z a" . kirigami-toggle-fold)))      ; Toggle fold at point
 
-(use-package apheleia
-  :commands (apheleia-mode
-             apheleia-global-mode)
-  :hook ((prog-mode . apheleia-mode))
-  :diminish apheleia-mode)
+;; (use-package apheleia
+;;   :commands (apheleia-mode
+;;              apheleia-global-mode)
+;;   :hook ((prog-mode . apheleia-mode))
+;;   :diminish apheleia-mode)
 
 (use-package dumb-jump
   :commands dumb-jump-xref-activate
@@ -546,7 +554,7 @@
   (org-startup-truncated t))
 
 (setq org-directory "~/org/")
-(defun org-home () (interactive) (find-file "~/org/main.org"))
+(defun org-home () "Go to org home directory" (interactive) (find-file "~/org/main.org"))
 
 (use-package org-appear
   :commands org-appear-mode
@@ -576,6 +584,7 @@
 (use-package company-prescient
   :ensure t
   :config
+  (setq company-prescient-sort-length-enable nil)
   (company-prescient-mode 1))
 
 ;; (use-package corfu-prescient
@@ -612,7 +621,8 @@
          ("C-c s y" . surround-kill)
          ("C-c s c" . surround-change)))
 
-(defun to-config()
+(defun to-config ()
+  "Go to configuration file"
   (interactive)
   (find-file "~/.emacs.d/post-init.el"))
 
