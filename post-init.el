@@ -45,12 +45,22 @@
 (use-package ef-themes
   :ensure t)
 
+(add-hook 'after-init-hook
+  (lambda ()
+    (mapc (lambda (face)
+            (set-face-attribute face nil :weight 'normal :underline nil))
+          (face-list))))
+
 (use-package doric-themes
-  :ensure t)
+  :ensure t
+  :config
+  (set-face-attribute 'default nil :family "personal iosevka" :height 160)
+  (set-face-attribute 'variable-pitch nil :family "personal iosevka" :height 1.0)
+  (set-face-attribute 'fixed-pitch nil :family "personal iosevka" :height 1.0))
 
 (let ((inhibit-redisplay t))
   (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'ef-dream t))
+  (load-theme 'doric-plum t))
 
 (use-package doom-themes
   :ensure t
@@ -69,13 +79,6 @@
 (keymap-global-set "M-v" (lambda () (interactive) (View-scroll-half-page-backward) (move-to-window-line nil)))
 
 (setq whitespace-style '(face trailing tabs spaces space-mark tab-mark))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(whitespace-space ((t (:foreground "gray40"))))
- '(whitespace-tab ((t (:foreground "gray40")))))
 
 (when (native-comp-available-p)
   (use-package compile-angel
@@ -724,6 +727,8 @@
      '(":" . execute-extended-command)
      '("%" . query-replace-regexp)))
   :config
+  (setq meow-cursor-type-insert 'box
+        meow-cursor-type-beacon 'box)
   (meow-setup)
   (meow-global-mode 1))
 
