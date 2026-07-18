@@ -82,6 +82,7 @@
 
 (when (native-comp-available-p)
   (use-package compile-angel
+    :ensure t
     :demand t
     :config
     ;; The following disables compilation of packages during installation;
@@ -223,6 +224,8 @@
   (setq company-minimum-prefix-length 2)
   (setq company-idle-delay 0)
   (setq company-inhibit-inside-symbols t)
+  (setq company-dabbrev-other-buffers 'all)
+  (setq company-dabbrev-code-other-buffers 'all)
   (setq company-backends '((company-capf company-dabbrev-code company-files company-ispell company-yasnippet)))
   (setq company-dabbrev-code-ignore-case t)
   (setq company-files-exclusions '(".git/" ".DS_Store" "makefile"))
@@ -311,6 +314,7 @@
   (after-init . marginalia-mode))
 
 (use-package embark
+  :ensure t
   ;; Embark is an Emacs package that acts like a context menu, allowing
   ;; users to perform context-sensitive actions on selected items
   ;; directly from the completion interface.
@@ -336,6 +340,7 @@
                  (window-parameters (mode-line-format . none)))))
 
 (use-package embark-consult
+  :ensure t
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
@@ -437,6 +442,7 @@
 
 
 (use-package kirigami
+  :ensure t
   :commands (kirigami-open-fold
              kirigami-open-fold-rec
              kirigami-close-fold
@@ -445,22 +451,9 @@
              kirigami-close-folds-except-current
              kirigami-close-folds))
 
-;; :bind
-;; (("C-c z o" . kirigami-open-fold)          ; Open fold at point
-;;  ("C-c z O" . kirigami-open-fold-rec)      ; Open fold recursively
-;;  ("C-c z r" . kirigami-open-folds)         ; Open all folds
-;;  ("C-c z c" . kirigami-close-fold)         ; Close fold at point
-;;  ("C-c z m" . kirigami-close-folds)        ; Close all folds
-;;  ("C-c z a" . kirigami-toggle-fold)))      ; Toggle fold at point
-
-;; (use-package apheleia
-;;   :commands (apheleia-mode
-;;              apheleia-global-mode)
-;;   :hook ((prog-mode . apheleia-mode))
-;;   :diminish apheleia-mode)
-
 (use-package dumb-jump
-  :commands dumb-jump-xref-activate
+  ;; bruh windows needs to use command prompt
+  :ensure t
   :init
   ;; Register `dumb-jump' as an xref backend so it integrates with
   ;; `xref-find-definitions'. A priority of 90 ensures it is used only when no
@@ -478,6 +471,7 @@
   ;; active completion framework (e.g., Vertico, Ivy, Helm, Icomplete),
   ;; providing a consistent minibuffer-based interface whenever multiple
   ;; definitions are found.
+  (setq xref-show-definitions-function #'consult-xref)
   (setq dumb-jump-selector 'completing-read)
   (setq dumb-jump-rg-search-args "--pcre2 --follow")
 
@@ -489,6 +483,7 @@
     (setq dumb-jump-prefer-searcher 'rg)))
 
 (use-package yasnippet
+  :ensure t
   :commands (yas-minor-mode
              yas-global-mode)
 
@@ -509,6 +504,7 @@
   (setq yas-verbosity 0))
 
 (use-package stripspace
+  :ensure t
   :commands stripspace-local-mode
 
   ;; Enable for prog-mode-hook, text-mode-hook, conf-mode-hook
@@ -533,6 +529,7 @@
   :diminish stripspace-local-mode)
 
 (use-package diff-hl
+  :ensure t
   :commands (diff-hl-mode
              global-diff-hl-mode)
   :hook (prog-mode . diff-hl-mode)
@@ -560,6 +557,7 @@
 (defun org-home () "Go to org home directory" (interactive) (find-file "~/org/main.org"))
 
 (use-package org-appear
+  :ensure t
   :commands org-appear-mode
   :hook (org-mode . org-appear-mode))
 
@@ -815,6 +813,7 @@
   :ensure t)
 
 (use-package avy
+  :ensure t
   :bind
   ("C-c a :" . avy-goto-char)
   ("C-c a '" . avy-goto-char-2)
@@ -873,7 +872,7 @@
   "Consult"
   ("q" nil "Exit" :column "Quit")
   ("g" consult-ripgrep "Ripgrep" :column "Consult")
-  ("f" consult-find "Find")
+  ("f" consult-find "Find files")
   ("b" consult-buffer "Buffers")
   ("l" consult-focus-lines "Lines")
   ("d" consult-imenu "Definitions")
