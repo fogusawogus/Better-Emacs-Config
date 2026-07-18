@@ -28,6 +28,7 @@
 (setq font-lock-maximum-decoration nil)
 (add-hook 'odin-mode-hook #'indent-tabs-mode)
 (global-visual-line-mode t)
+(menu-bar-mode -1)
 
 (defun to-projects () (interactive) (find-file "~/projects/"))
 
@@ -211,16 +212,7 @@
   :config
   (add-hook 'after-init-hook 'company-tng-mode)
   (add-hook 'after-init-hook 'global-company-mode)
-  (setq company-tng-auto-configure nil)
-  (setq company-tng-map t)
-  (setq company-frontends '(company-childframe-unless-just-one-frontend
-                            company-preview-if-just-one-frontend
-                            company-echo-metadata-frontend))
   (setq company-tooltip-align-annotations t))
-
-;; (defun one-time-load-theme (&optional _)
-;;   (add-hook 'completion-at-point-functions (lambda (&optional _) (load-theme 'ef-dream t)))
-;;   (remove-hook 'completion-at-point-functions #'one-time-load-theme))
 
 ;; (use-package corfu
 ;;   :ensure t
@@ -810,9 +802,6 @@
 (use-package go-mode
   :ensure t)
 
-(use-package eat
-  :ensure t)
-
 (use-package dape
   :ensure t
   :preface
@@ -850,6 +839,7 @@
 
 (defhydra hydra-avy (:color blue)
   "Avy"
+  ("q" nil "Exit" :column "Quit" :color blue)
   ("w" avy-goto-word-1 "Go to word" :column "Avy")
   ("l" avy-goto-line "Go to line")
   ("c" avy-goto-char "Go to char"))
