@@ -25,29 +25,43 @@
 (global-whitespace-mode 1)
 (setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider :documentHighlightProvider :colorProvider :hoverProdiver :codeLensProvider :semanticTokensProvider))
 (setq menu-bar-mode nil)
-(setq font-lock-maximum-decoration nil)
-(add-hook 'odin-mode-hook #'indent-tabs-mode)
 (global-visual-line-mode t)
 (menu-bar-mode -1)
 
-(defun to-projects () (interactive) (find-file "~/projects/"))
+(add-hook 'c++-mode-hook
+          (lambda ()
+            (setq c-basic-offset 4)))
+
+(defun to-projects () "Go to projects folder" (interactive) (find-file "~/projects/"))
 
 (add-hook 'prog-mode-hook (lambda () (interactive) (hs-minor-mode) (diminish 'hs-minor-mode "")))
 (add-hook 'after-init-hook (lambda () (interactive) (diminish 'whitespace-mode "")))
 (add-hook 'after-init-hook (lambda () (interactive) (diminish 'visual-line-mode "")))
+(add-hook 'prog-mode-hook (lambda () (interactive) (diminish 'eldoc-mode "")))
+(add-hook 'prog-mode-hook (lambda () (interactive) (diminish 'abbrev-mode "")))
 
 (use-package diminish
   :ensure t)
 
-(use-package eldoc
-  :diminish)
-
 (use-package ef-themes
   :ensure t)
 
+(add-hook 'after-init-hook
+          (lambda ()
+            (mapc (lambda (face)
+                    (set-face-attribute face nil :weight 'normal :underline nil))
+                  (face-list))))
+
+(use-package doric-themes
+  :ensure t
+  :config
+  (set-face-attribute 'default nil :family "personal iosevka" :height 160)
+  (set-face-attribute 'variable-pitch nil :family "personal iosevka" :height 1.0)
+  (set-face-attribute 'fixed-pitch nil :family "personal iosevka" :height 1.0))
+
 (let ((inhibit-redisplay t))
   (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'ef-dream t))
+  (load-theme 'doric-plum t))
 
 (use-package doom-themes
   :ensure t
@@ -66,16 +80,10 @@
 (keymap-global-set "M-v" (lambda () (interactive) (View-scroll-half-page-backward) (move-to-window-line nil)))
 
 (setq whitespace-style '(face trailing tabs spaces space-mark tab-mark))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(whitespace-space ((t (:foreground "gray40"))))
- '(whitespace-tab ((t (:foreground "gray40")))))
 
 (when (native-comp-available-p)
   (use-package compile-angel
+    :ensure t
     :demand t
     :config
     ;; The following disables compilation of packages during installation;
@@ -208,10 +216,25 @@
 
 (use-package company
   ;; see company childframe frontend
+  ;; make sure to change company-tng in ./var/straight/build/company/company-tng.el
   :ensure t
   :config
   (add-hook 'after-init-hook 'company-tng-mode)
   (add-hook 'after-init-hook 'global-company-mode)
+  (setq completion-ignore-case t)
+  (setq company-minimum-prefix-length 2)
+  (setq company-idle-delay 0)
+  (setq company-inhibit-inside-symbols t)
+  (setq company-dabbrev-other-buffers 'all)
+  (setq company-dabbrev-code-other-buffers 'all)
+  (setq company-backends '((company-capf company-dabbrev-code company-files company-ispell company-yasnippet)))
+  (setq company-dabbrev-code-ignore-case t)
+  (setq company-files-exclusions '(".git/" ".DS_Store" "makefile"))
+  (setq company-dabbrev-downcase nil)
+  (setq company-dabbrev-ignore-case t)
+  (setq company-transformers '(delete-consecutive-dups
+                               company-sort-by-occurrence
+                               company-sort-prefer-same-case-prefix))
   (setq company-tooltip-align-annotations t))
 
 ;; (use-package corfu
@@ -292,6 +315,7 @@
   (after-init . marginalia-mode))
 
 (use-package embark
+  :ensure t
   ;; Embark is an Emacs package that acts like a context menu, allowing
   ;; users to perform context-sensitive actions on selected items
   ;; directly from the completion interface.
@@ -317,6 +341,7 @@
                  (window-parameters (mode-line-format . none)))))
 
 (use-package embark-consult
+  :ensure t
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
@@ -418,6 +443,7 @@
 
 
 (use-package kirigami
+  :ensure t
   :commands (kirigami-open-fold
              kirigami-open-fold-rec
              kirigami-close-fold
@@ -426,22 +452,9 @@
              kirigami-close-folds-except-current
              kirigami-close-folds))
 
-;; :bind
-;; (("C-c z o" . kirigami-open-fold)          ; Open fold at point
-;;  ("C-c z O" . kirigami-open-fold-rec)      ; Open fold recursively
-;;  ("C-c z r" . kirigami-open-folds)         ; Open all folds
-;;  ("C-c z c" . kirigami-close-fold)         ; Close fold at point
-;;  ("C-c z m" . kirigami-close-folds)        ; Close all folds
-;;  ("C-c z a" . kirigami-toggle-fold)))      ; Toggle fold at point
-
-(use-package apheleia
-  :commands (apheleia-mode
-             apheleia-global-mode)
-  :hook ((prog-mode . apheleia-mode))
-  :diminish apheleia-mode)
-
 (use-package dumb-jump
-  :commands dumb-jump-xref-activate
+  ;; bruh windows needs to use command prompt
+  :ensure t
   :init
   ;; Register `dumb-jump' as an xref backend so it integrates with
   ;; `xref-find-definitions'. A priority of 90 ensures it is used only when no
@@ -459,6 +472,7 @@
   ;; active completion framework (e.g., Vertico, Ivy, Helm, Icomplete),
   ;; providing a consistent minibuffer-based interface whenever multiple
   ;; definitions are found.
+  (setq xref-show-definitions-function #'consult-xref)
   (setq dumb-jump-selector 'completing-read)
   (setq dumb-jump-rg-search-args "--pcre2 --follow")
 
@@ -470,6 +484,7 @@
     (setq dumb-jump-prefer-searcher 'rg)))
 
 (use-package yasnippet
+  :ensure t
   :commands (yas-minor-mode
              yas-global-mode)
 
@@ -490,6 +505,7 @@
   (setq yas-verbosity 0))
 
 (use-package stripspace
+  :ensure t
   :commands stripspace-local-mode
 
   ;; Enable for prog-mode-hook, text-mode-hook, conf-mode-hook
@@ -514,6 +530,7 @@
   :diminish stripspace-local-mode)
 
 (use-package diff-hl
+  :ensure t
   :commands (diff-hl-mode
              global-diff-hl-mode)
   :hook (prog-mode . diff-hl-mode)
@@ -538,9 +555,10 @@
   (org-startup-truncated t))
 
 (setq org-directory "~/org/")
-(defun org-home () (interactive) (find-file "~/org/main.org"))
+(defun org-home () "Go to org home directory" (interactive) (find-file "~/org/main.org"))
 
 (use-package org-appear
+  :ensure t
   :commands org-appear-mode
   :hook (org-mode . org-appear-mode))
 
@@ -568,6 +586,7 @@
 (use-package company-prescient
   :ensure t
   :config
+  (setq company-prescient-sort-length-enable nil)
   (company-prescient-mode 1))
 
 ;; (use-package corfu-prescient
@@ -604,7 +623,8 @@
          ("C-c s y" . surround-kill)
          ("C-c s c" . surround-change)))
 
-(defun to-config()
+(defun to-config ()
+  "Go to configuration file"
   (interactive)
   (find-file "~/.emacs.d/post-init.el"))
 
@@ -706,6 +726,8 @@
      '(":" . execute-extended-command)
      '("%" . query-replace-regexp)))
   :config
+  (setq meow-cursor-type-insert 'box
+        meow-cursor-type-beacon 'box)
   (meow-setup)
   (meow-global-mode 1))
 
@@ -792,6 +814,7 @@
   :ensure t)
 
 (use-package avy
+  :ensure t
   :bind
   ("C-c a :" . avy-goto-char)
   ("C-c a '" . avy-goto-char-2)
@@ -848,7 +871,7 @@
   "Consult"
   ("q" nil "Exit" :column "Quit")
   ("g" consult-ripgrep "Ripgrep" :column "Consult")
-  ("f" consult-find "Find")
+  ("f" consult-find "Find files")
   ("b" consult-buffer "Buffers")
   ("l" consult-focus-lines "Lines")
   ("d" consult-imenu "Definitions")
