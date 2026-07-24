@@ -16,8 +16,6 @@
 (advice-add #'magit-version :override #'ignore)
 (setq scroll-conservatively 101)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-(setq split-height-threshold 0)
-(setq split-width-threshold nil)
 (setq select-enable-clipboard t)
 (setq select-enable-primary t)
 (setq meow-use-clipboard t)
@@ -215,6 +213,7 @@
 (setq auto-save-timeout 30)
 
 (use-package company
+  :straight (company :type git :host nil :repo "https://github.com/fogusawogus/company-mode")
   ;; see company childframe frontend
   ;; make sure to change company-tng in ./var/straight/build/company/company-tng.el
   :ensure t
@@ -227,7 +226,7 @@
   (setq company-inhibit-inside-symbols t)
   (setq company-dabbrev-other-buffers 'all)
   (setq company-dabbrev-code-other-buffers 'all)
-  (setq company-backends '((company-capf company-dabbrev-code company-files company-ispell company-yasnippet)))
+  (setq company-backends '((company-capf company-dabbrev-code company-files company-yasnippet)))
   (setq company-dabbrev-code-ignore-case t)
   (setq company-files-exclusions '(".git/" ".DS_Store" "makefile"))
   (setq company-dabbrev-downcase nil)
@@ -236,64 +235,6 @@
                                company-sort-by-occurrence
                                company-sort-prefer-same-case-prefix))
   (setq company-tooltip-align-annotations t))
-
-;; (use-package corfu
-;;   :ensure t
-;;   :hook ((prog-mode . corfu-mode)
-;;          (shell-mode . corfu-mode)
-;;          (eshell-mode . corfu-mode))
-;;   :custom
-;;   (read-extended-command-predicate #'command-completion-default-include-p)
-;;   (text-mode-ispell-word-completion nil)
-;;   (tab-always-indent 'complete)
-;;   (enable-recursive-minibuffers t)
-;;   (context-menu-mode t)
-;;   (completion-ignore-case t)
-;;   (corfu-auto t)
-;;   (corfu-auto-delay .2)
-;;   (corfu-cycle t)
-;;   (corfu-preselect 'prompt)
-;;   :bind
-;;   (:map corfu-map
-;;         ("C-SPC" . corfu-info-documentation)
-;;         ("TAB" . corfu-next)
-;;         ([tab] . corfu-next)
-;;         ("S-TAB" . corfu-previous)
-;;         ([backtab] . corfu-previous))
-;;   :config
-;;   (keymap-set corfu-map "RET" `(menu-item "" nil :filer
-;;                                           ,(lambda (&optional _)
-;;                                              (and (derived-mode-p 'eshell-mode 'comint-mode)
-;;                                                   #'corfu-send))))
-;;   :init
-;;   (corfu-history-mode t)
-;;   (corfu-echo-mode t)
-;;   (global-corfu-mode))
-;; ;; :bind ("C-x C-o" . ))
-;;
-;; (use-package cape
-;;   :ensure t
-;;   ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
-;;   ;; Press C-c p ? to for help.
-;;   :commands (cape-dabbrev cape-file cape-elisp-block )
-;;   :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
-;;   ;; Alternatively bind Cape commands individually.
-;;   ;; :bind (("C-c p d" . cape-dabbrev)
-;;   ;;        ("C-c p h" . cape-history)
-;;   ;;        ("C-c p f" . cape-file)
-;;   ;;        ...)
-;;   :init
-;;   ;; Add to the global default value of `completion-at-point-functions' which is
-;;   ;; used by `completion-at-point'.  The order of the functions matters, the
-;;   ;; first function returning a result wins.  Note that the list of buffer-local
-;;   ;; completion functions takes precedence over the global list.
-;;   ;; (add-hook 'completion-at-point-functions (cape-capf-super #'cape-dabbrev #'cape-history #'cape-elisp-block #'cape-history #'cape-dict))
-;;   (add-hook 'completion-at-point-functions #'cape-dabbrev)
-;;   (add-hook 'completion-at-point-functions #'cape-file)
-;;   (add-hook 'completion-at-point-functions #'cape-history)
-;;   (add-hook 'completion-at-point-functions #'cape-dict)
-;;   (add-hook 'completion-at-point-functions #'cape-elisp-block)
-;;   )
 
 (use-package vertico
   :ensure t
@@ -589,16 +530,6 @@
   (setq company-prescient-sort-length-enable nil)
   (company-prescient-mode 1))
 
-;; (use-package corfu-prescient
-;;   :ensure t
-;;   :after corfu prescient
-;;   :custom
-;;   (corfu-prescient-enable-sorting t)
-;;   (corfu-prescient-override-sorting nil)
-;;   (corfu-prescient-enable-filtering nil)
-;;   :config
-;;   (corfu-prescient-mode 1))
-
 ;; (use-package flycheck
 ;;   :ensure t
 ;;   :config
@@ -638,125 +569,126 @@
   :config
   (vertico-prescient-mode 1))
 
-(use-package meow
-  :ensure t
-  :init
-  (defun meow-setup ()
-    ;; (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-    (meow-motion-overwrite-define-key
-     '("j" . meow-next)
-     '("k" . meow-prev)
-     '("<escape>" . ignore))
-    (meow-leader-define-key
-     ;; Use SPC (0-9) for digit arguments.
-     '("1" . meow-digit-argument)
-     '("2" . meow-digit-argument)
-     '("3" . meow-digit-argument)
-     '("4" . meow-digit-argument)
-     '("5" . meow-digit-argument)
-     '("6" . meow-digit-argument)
-     '("7" . meow-digit-argument)
-     '("8" . meow-digit-argument)
-     '("9" . meow-digit-argument)
-     '("0" . meow-digit-argument)
-     '("/" . meow-keypad-describe-key)
-     '("?" . meow-cheatsheet))
-    (meow-normal-define-key
-     '("0" . meow-expand-0)
-     '("9" . meow-expand-9)
-     '("8" . meow-expand-8)
-     '("7" . meow-expand-7)
-     '("6" . meow-expand-6)
-     '("5" . meow-expand-5)
-     '("4" . meow-expand-4)
-     '("3" . meow-expand-3)
-     '("2" . meow-expand-2)
-     '("1" . meow-expand-1)
-     '("-" . negative-argument)
-     '(";" . meow-reverse)
-     '("," . meow-inner-of-thing)
-     '("." . meow-bounds-of-thing)
-     '("[" . meow-beginning-of-thing)
-     '("]" . meow-end-of-thing)
-     '("a" . meow-append)
-     '("A" . meow-open-below)
-     '("b" . meow-back-word)
-     '("B" . meow-back-symbol)
-     '("c" . meow-change)
-     '("d" . meow-delete)
-     '("D" . meow-backward-delete)
-     '("e" . meow-next-word)
-     '("E" . meow-next-symbol)
-     '("f" . meow-find)
-     '("g" . meow-cancel-selection)
-     '("G" . meow-grab)
-     '("h" . meow-left)
-     '("H" . meow-left-expand)
-     '("i" . meow-insert)
-     '("I" . meow-open-above)
-     '("j" . meow-next)
-     '("J" . meow-next-expand)
-     '("k" . meow-prev)
-     '("K" . meow-prev-expand)
-     '("l" . meow-right)
-     '("L" . meow-right-expand)
-     '("m" . meow-join)
-     '("n" . meow-search)
-     '("o" . meow-block)
-     '("O" . meow-to-block)
-     '("p" . meow-yank)
-     '("q" . meow-quit)
-     '("Q" . meow-goto-line)
-     '("r" . meow-replace)
-     '("R" . meow-swap-grab)
-     '("s" . meow-kill)
-     '("t" . meow-till)
-     '("u" . meow-undo)
-     '("U" . meow-undo-in-selection)
-     '("v" . meow-visit)
-     '("w" . meow-mark-word)
-     '("W" . meow-mark-symbol)
-     '("x" . meow-line)
-     '("X" . meow-goto-line)
-     '("y" . meow-save)
-     '("Y" . meow-sync-grab)
-     '("z" . meow-pop-selection)
-     '("'" . repeat)
-     '("<escape>" . ignore)
-     '(":" . execute-extended-command)
-     '("%" . query-replace-regexp)))
-  :config
-  (setq meow-cursor-type-insert 'box
-        meow-cursor-type-beacon 'box)
-  (meow-setup)
-  (meow-global-mode 1))
-
-(setq meow-two-char-escape-sequence "jk")
-(setq meow-two-char-escape-delay 0.5)
-
-(defun meow--two-char-exit-insert-state (s)
-  (when (meow-insert-mode-p)
-    (let ((modified (buffer-modified-p)))
-      (insert (elt s 0))
-      (let* ((second-char (elt s 1))
-             (event
-              (if defining-kbd-macro
-                  (read-event nil nil)
-                (read-event nil nil meow-two-char-escape-delay))))
-        (when event
-          (if (and (characterp event) (= event second-char))
-              (progn
-                (backward-delete-char 1)
-                (set-buffer-modified-p modified)
-                (meow--execute-kbd-macro "<escape>"))
-            (push event unread-command-events)))))))
-
-(defun meow-two-char-exit-insert-state ()
-  (interactive)
-  (meow--two-char-exit-insert-state meow-two-char-escape-sequence))
-
-(define-key meow-insert-state-keymap (substring meow-two-char-escape-sequence 0 1)
-            #'meow-two-char-exit-insert-state)
+;; (use-package meow
+;;   :ensure t
+;;   :init
+;;   (defun meow-setup ()
+;;     ;; (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+;;     (meow-motion-overwrite-define-key
+;;      '("j" . meow-next)
+;;      '("k" . meow-prev)
+;;      '("<escape>" . ignore))
+;;     (meow-leader-define-key
+;;      ;; Use SPC (0-9) for digit arguments.
+;;      '("1" . meow-digit-argument)
+;;      '("2" . meow-digit-argument)
+;;      '("3" . meow-digit-argument)
+;;      '("4" . meow-digit-argument)
+;;      '("5" . meow-digit-argument)
+;;      '("6" . meow-digit-argument)
+;;      '("7" . meow-digit-argument)
+;;      '("8" . meow-digit-argument)
+;;      '("9" . meow-digit-argument)
+;;      '("0" . meow-digit-argument)
+;;      '("/" . meow-keypad-describe-key)
+;;      '("?" . meow-cheatsheet))
+;;     (meow-normal-define-key
+;;      '("0" . meow-expand-0)
+;;      '("9" . meow-expand-9)
+;;      '("8" . meow-expand-8)
+;;      '("7" . meow-expand-7)
+;;      '("6" . meow-expand-6)
+;;      '("5" . meow-expand-5)
+;;      '("4" . meow-expand-4)
+;;      '("3" . meow-expand-3)
+;;      '("2" . meow-expand-2)
+;;      '("1" . meow-expand-1)
+;;      '("-" . negative-argument)
+;;      '(";" . meow-reverse)
+;;      '("," . meow-inner-of-thing)
+;;      '("." . meow-bounds-of-thing)
+;;      '("[" . meow-beginning-of-thing)
+;;      '("]" . meow-end-of-thing)
+;;      '("a" . meow-append)
+;;      '("A" . meow-open-below)
+;;      '("b" . meow-back-word)
+;;      '("B" . meow-back-symbol)
+;;      '("c" . meow-change)
+;;      '("d" . meow-delete)
+;;      '("D" . meow-backward-delete)
+;;      '("e" . meow-next-word)
+;;      '("E" . meow-next-symbol)
+;;      '("f" . meow-find)
+;;      '("g" . meow-cancel-selection)
+;;      '("G" . meow-grab)
+;;      '("h" . meow-left)
+;;      '("H" . meow-left-expand)
+;;      '("i" . meow-insert)
+;;      '("I" . meow-open-above)
+;;      '("j" . meow-next)
+;;      '("J" . meow-next-expand)
+;;      '("k" . meow-prev)
+;;      '("K" . meow-prev-expand)
+;;      '("l" . meow-right)
+;;      '("L" . meow-right-expand)
+;;      '("m" . meow-join)
+;;      '("n" . meow-search)
+;;      '("o" . meow-block)
+;;      '("O" . meow-to-block)
+;;      '("p" . meow-yank)
+;;      '("q" . meow-quit)
+;;      '("Q" . meow-goto-line)
+;;      '("r" . meow-replace)
+;;      '("R" . meow-swap-grab)
+;;      '("s" . meow-kill)
+;;      '("t" . meow-till)
+;;      '("u" . meow-undo)
+;;      '("U" . meow-undo-in-selection)
+;;      '("v" . meow-visit)
+;;      '("w" . meow-mark-word)
+;;      '("W" . meow-mark-symbol)
+;;      '("x" . meow-line)
+;;      '("X" . meow-goto-line)
+;;      '("y" . meow-save)
+;;      '("Y" . meow-sync-grab)
+;;      '("z" . meow-pop-selection)
+;;      '("'" . repeat)
+;;      '("<escape>" . ignore)
+;;      '(":" . execute-extended-command)
+;;      '("%" . query-replace-regexp)
+;;      '("/" . isearch-forward)))
+;;   :config
+;;   (setq meow-cursor-type-insert 'box
+;;         meow-cursor-type-beacon 'box)
+;;   (meow-setup)
+;;   (meow-global-mode 1))
+;;
+;; (setq meow-two-char-escape-sequence "jk")
+;; (setq meow-two-char-escape-delay 0.5)
+;;
+;; (defun meow--two-char-exit-insert-state (s)
+;;   (when (meow-insert-mode-p)
+;;     (let ((modified (buffer-modified-p)))
+;;       (insert (elt s 0))
+;;       (let* ((second-char (elt s 1))
+;;              (event
+;;               (if defining-kbd-macro
+;;                   (read-event nil nil)
+;;                 (read-event nil nil meow-two-char-escape-delay))))
+;;         (when event
+;;           (if (and (characterp event) (= event second-char))
+;;               (progn
+;;                 (backward-delete-char 1)
+;;                 (set-buffer-modified-p modified)
+;;                 (meow--execute-kbd-macro "<escape>"))
+;;             (push event unread-command-events)))))))
+;;
+;; (defun meow-two-char-exit-insert-state ()
+;;   (interactive)
+;;   (meow--two-char-exit-insert-state meow-two-char-escape-sequence))
+;;
+;; (define-key meow-insert-state-keymap (substring meow-two-char-escape-sequence 0 1)
+;;             #'meow-two-char-exit-insert-state)
 
 (use-package elfeed
   :ensure t)
