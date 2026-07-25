@@ -1,5 +1,5 @@
 (load-file "~/.emacs.d/local.el")
-(set-frame-font "personal iosevka 16" t)
+(set-frame-font "personal iosevka 14" t)
 (with-eval-after-load 'eglot
   (fset #'eglot--snippet-expansion-fn #'ignore))
 (setq-default display-line-numbers-type 'absolute)
@@ -18,8 +18,8 @@
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq select-enable-clipboard t)
 (setq select-enable-primary t)
-(setq meow-use-clipboard t)
-(setq meow-keypad-describe-delay 10)
+;; (setq meow-use-clipboard t)
+;; (setq meow-keypad-describe-delay 10)
 (global-whitespace-mode 1)
 (setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider :documentHighlightProvider :colorProvider :hoverProdiver :codeLensProvider :semanticTokensProvider))
 (setq menu-bar-mode nil)
@@ -53,7 +53,7 @@
 (use-package doric-themes
   :ensure t
   :config
-  (set-face-attribute 'default nil :family "personal iosevka" :height 160)
+  (set-face-attribute 'default nil :family "personal iosevka" :height 140)
   (set-face-attribute 'variable-pitch nil :family "personal iosevka" :height 1.0)
   (set-face-attribute 'fixed-pitch nil :family "personal iosevka" :height 1.0))
 
@@ -216,6 +216,7 @@
   :straight (company :type git :host nil :repo "https://github.com/fogusawogus/company-mode")
   ;; see company childframe frontend
   ;; make sure to change company-tng in ./var/straight/build/company/company-tng.el
+  ;; right now dont need to do ^ bc have own custom repo with that change
   :ensure t
   :config
   (add-hook 'after-init-hook 'company-tng-mode)
@@ -231,9 +232,11 @@
   (setq company-files-exclusions '(".git/" ".DS_Store" "makefile"))
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-ignore-case t)
-  (setq company-transformers '(delete-consecutive-dups
-                               company-sort-by-occurrence
-                               company-sort-prefer-same-case-prefix))
+  ;; (setq company-transformers '(delete-consecutive-dups
+  ;;                              company-sort-by-occurrence
+  ;;                              company-sort-prefer-same-case-prefix))
+  (define-key company-active-map (kbd "C-n") nil)
+  (define-key company-active-map (kbd "C-p") nil)
   (setq company-tooltip-align-annotations t))
 
 (use-package vertico
@@ -363,9 +366,9 @@
   ;;
   ;; However, the author of minimal-emacs.d uses these parameters to achieve
   ;; immediate feedback from Consult.
-  ;; (setq consult-async-input-debounce 0.02
-  ;;       consult-async-input-throttle 0.05
-  ;;       consult-async-refresh-delay 0.02)
+  (setq consult-async-input-debounce 0.02
+        consult-async-input-throttle 0.05
+        consult-async-refresh-delay 0.02)
 
   :config
   (consult-customize
