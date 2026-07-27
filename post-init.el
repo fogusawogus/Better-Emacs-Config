@@ -26,11 +26,17 @@
 (global-visual-line-mode t)
 (menu-bar-mode -1)
 
+(straight-use-package '(project :type built-in))
+(straight-use-package '(xref :type built-in))
+
 (add-hook 'c++-mode-hook
           (lambda ()
             (setq c-basic-offset 4)))
 
 (defun to-projects () "Go to projects folder" (interactive) (find-file "~/projects/"))
+
+(use-package diminish
+  :ensure t)
 
 (add-hook 'prog-mode-hook (lambda () (interactive) (hs-minor-mode) (diminish 'hs-minor-mode "")))
 (add-hook 'after-init-hook (lambda () (interactive) (diminish 'whitespace-mode "")))
@@ -38,16 +44,13 @@
 (add-hook 'prog-mode-hook (lambda () (interactive) (diminish 'eldoc-mode "")))
 (add-hook 'prog-mode-hook (lambda () (interactive) (diminish 'abbrev-mode "")))
 
-(use-package diminish
-  :ensure t)
-
 (use-package ef-themes
   :ensure t)
 
 (add-hook 'after-init-hook
           (lambda ()
             (mapc (lambda (face)
-                    (set-face-attribute face nil :weight 'normal :underline nil))
+                    (set-face-attribute face nil :underline nil))
                   (face-list))))
 
 (use-package doric-themes
@@ -366,9 +369,9 @@
   ;;
   ;; However, the author of minimal-emacs.d uses these parameters to achieve
   ;; immediate feedback from Consult.
-  (setq consult-async-input-debounce 0.02
-        consult-async-input-throttle 0.05
-        consult-async-refresh-delay 0.02)
+  ;; (setq consult-async-input-debounce 0.02
+  ;;       consult-async-input-throttle 0.05
+  ;;       consult-async-refresh-delay 0.02)
 
   :config
   (consult-customize
