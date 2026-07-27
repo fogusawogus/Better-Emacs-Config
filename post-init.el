@@ -18,6 +18,7 @@
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq select-enable-clipboard t)
 (setq select-enable-primary t)
+(setq save-interprogram-paste-before-kill t)
 ;; (setq meow-use-clipboard t)
 ;; (setq meow-keypad-describe-delay 10)
 (global-whitespace-mode 1)
@@ -50,7 +51,7 @@
 (add-hook 'after-init-hook
           (lambda ()
             (mapc (lambda (face)
-                    (set-face-attribute face nil :underline nil))
+                    (set-face-attribute face nil :underline nil :slant 'normal))
                   (face-list))))
 
 (use-package doric-themes
