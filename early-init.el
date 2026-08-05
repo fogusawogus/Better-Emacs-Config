@@ -46,7 +46,8 @@ This variable holds a list of Emacs UI features that can be enabled:
 - dialogs (Enables both file dialogs and dialog boxes.)
 - tooltips (Enables tooltips.)")
 
-(defvar minimal-emacs-frame-title-format "%b – Emacs"
+(defvar minimal-emacs-frame-title-format '(multiple-frames "%b"
+                 ("" "%b - GNU Emacs at " system-name))
   "Template for displaying the title bar of visible and iconified frame.")
 
 (defvar minimal-emacs-debug (bound-and-true-p init-file-debug)

@@ -12,9 +12,9 @@
 (setq kept-new-versions 10)
 (with-eval-after-load 'cc-mode
   (define-key c-mode-base-map (kbd "TAB") #'indent-for-tab-command))
-(eldoc-add-command 'c-electric-paren)
+;; (eldoc-add-command 'c-electric-paren)
 (advice-add #'magit-version :override #'ignore)
-(setq scroll-conservatively 101)
+(setq scroll-conservatively 0)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq select-enable-clipboard t)
 (setq select-enable-primary t)
@@ -30,9 +30,9 @@
 (straight-use-package '(project :type built-in))
 (straight-use-package '(xref :type built-in))
 
-(add-hook 'c++-mode-hook
-          (lambda ()
-            (setq c-basic-offset 4)))
+(setq c-default-style "stroustrup")
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+
 
 (defun to-projects () "Go to projects folder" (interactive) (find-file "~/projects/"))
 
@@ -51,7 +51,7 @@
 (add-hook 'after-init-hook
           (lambda ()
             (mapc (lambda (face)
-                    (set-face-attribute face nil :underline nil :slant 'normal))
+                    (set-face-attribute face nil :weight 'normal :underline nil :slant 'normal))
                   (face-list))))
 
 (use-package doric-themes
@@ -77,9 +77,9 @@
 ;; (use-package nano-theme
 ;;   goofy ahh plugin setting global font faces despite not being used
 ;;   :ensure t)
-(require 'view)
-(keymap-global-set "C-v" (lambda () (interactive) (View-scroll-half-page-forward) (move-to-window-line nil)))
-(keymap-global-set "M-v" (lambda () (interactive) (View-scroll-half-page-backward) (move-to-window-line nil)))
+;; (require 'view)
+;; (keymap-global-set "C-v" (lambda () (interactive) (View-scroll-half-page-forward) (move-to-window-line nil)))
+;; (keymap-global-set "M-v" (lambda () (interactive) (View-scroll-half-page-backward) (move-to-window-line nil)))
 
 (setq whitespace-style '(face trailing tabs spaces space-mark tab-mark))
 
@@ -227,12 +227,12 @@
   (add-hook 'after-init-hook 'global-company-mode)
   (setq completion-ignore-case t)
   (setq company-minimum-prefix-length 2)
-  (setq company-idle-delay 0)
+  (setq company-idle-delay .2)
   (setq company-inhibit-inside-symbols t)
-  (setq company-dabbrev-other-buffers 'all)
-  (setq company-dabbrev-code-other-buffers 'all)
+  (setq company-dabbrev-other-buffers t)
+  (setq company-dabbrev-code-other-buffers t)
   (setq company-backends '((company-capf company-dabbrev-code company-files company-yasnippet)))
-  (setq company-dabbrev-code-ignore-case t)
+  (setq company-dabbrev-code-ignore-case nil)
   (setq company-files-exclusions '(".git/" ".DS_Store" "makefile"))
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-ignore-case t)
@@ -282,11 +282,13 @@
   (setq prefix-help-command #'embark-prefix-help-command)
 
   :config
+  (embark-auto-prefix-help-mode t)
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
-                 (window-parameters (mode-line-format . none)))))
+                 (window-parameters (mode-line-format . none))))
+  :diminish embark-auto-prefix-help-mode)
 
 (use-package embark-consult
   :ensure t
@@ -483,6 +485,7 @@
              global-diff-hl-mode)
   :hook (prog-mode . diff-hl-mode)
   :init
+  (diff-hl-flydiff-mode t)
   (setq diff-hl-flydiff-delay 0.4)  ; Faster
   (setq diff-hl-show-staged-changes nil)  ; Realtime feedback
   (setq diff-hl-update-async t))  ; Do not block Emacs
@@ -519,12 +522,12 @@
   (add-to-list 'eglot-stay-out-of 'flymake))
 
 
-(use-package elec-pair
-  :ensure nil
-  :commands (electric-pair-mode
-             electric-pair-local-mode
-             electric-pair-delete-pair)
-  :hook (after-init . electric-pair-mode))
+;; (use-package elec-pair
+;;   :ensure nil
+;;   :commands (electric-pair-mode
+;;              electric-pair-local-mode
+;;              electric-pair-delete-pair)
+;;   :hook (after-init . electric-pair-mode))
 
 (use-package prescient
   :ensure t
@@ -824,13 +827,17 @@
   ("c" surround-change "Change pair")
   ("d" surround-delete "Delete pair"))
 
-(use-package which-key
-  :diminish
-  :ensure nil
-  :commands which-key-mode
-  :hook (after-init . which-key-mode)
-  :custom
-  (which-key-idle-delay 1.5)
-  (which-key-idle-secondary-delay 0.25)
-  (which-key-add-column-padding 1)
-  (which-key-max-description-length 40))
+(use-package multiple-cursors
+  :ensure t
+  :bind (("<f1>" . mc/mark-next-like-this)))
+
+;; (use-package which-key
+;;   :diminish
+;;   :ensure nil
+;;   :commands which-key-mode
+;;   :hook (after-init . which-key-mode)
+;;   :custom
+;;   (which-key-idle-delay 1.5)
+;;   (which-key-idle-secondary-delay 0.25)
+;;   (which-key-add-column-padding 1)
+;;   (which-key-max-description-length 40))
