@@ -227,7 +227,7 @@
   (add-hook 'after-init-hook 'global-company-mode)
   (setq completion-ignore-case t)
   (setq company-minimum-prefix-length 2)
-  (setq company-idle-delay .2)
+  (setq company-idle-delay 0)
   (setq company-inhibit-inside-symbols t)
   (setq company-dabbrev-other-buffers t)
   (setq company-dabbrev-code-other-buffers t)
