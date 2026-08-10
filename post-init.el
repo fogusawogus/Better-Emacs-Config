@@ -216,32 +216,90 @@
 ;; Trigger an auto-save 30 seconds of idle time.
 (setq auto-save-timeout 30)
 
-(use-package company
-  :straight (company :type git :host nil :repo "https://github.com/fogusawogus/company-mode")
-  ;; see company childframe frontend
-  ;; make sure to change company-tng in ./var/straight/build/company/company-tng.el
-  ;; right now dont need to do ^ bc have own custom repo with that change
+;; (use-package company
+;;   :straight (company :type git :host nil :repo "https://github.com/fogusawogus/company-mode")
+;;   ;; see company childframe frontend
+;;   ;; make sure to change company-tng in ./var/straight/build/company/company-tng.el
+;;   ;; right now dont need to do ^ bc have own custom repo with that change
+  ;; :ensure t)
+;;   :config
+;;   (add-hook 'after-init-hook 'company-tng-mode)
+;;   (add-hook 'after-init-hook 'global-company-mode)
+;;   (setq completion-ignore-case t)
+;;   (setq company-minimum-prefix-length 2)
+;;   (setq company-idle-delay nil)
+;;   (setq company-inhibit-inside-symbols t)
+;;   (setq company-dabbrev-other-buffers t)
+;;   (setq company-dabbrev-code-other-buffers t)
+;;   (setq company-backends '((company-dabbrev-code company-capf company-files company-yasnippet)))
+;;   (setq company-dabbrev-code-ignore-case nil)
+;;   (setq company-files-exclusions '(".git/" ".DS_Store" "makefile"))
+;;   (setq company-dabbrev-downcase nil)
+;;   (setq company-dabbrev-ignore-case t)
+;;   ;; (setq company-transformers '(delete-consecutive-dups
+;;   ;;                              company-sort-by-occurrence
+;;   ;;                              company-sort-prefer-same-case-prefix))
+;;   (define-key company-active-map (kbd "C-n") nil)
+;;   (define-key company-active-map (kbd "C-p") nil)
+;;   (setq company-tooltip-align-annotations t))
+
+(use-package corfu
   :ensure t
+  :hook ((prog-mode . corfu-mode)
+         (shell-mode . corfu-mode)
+         (eshell-mode . corfu-mode))
+  :custom
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  (text-mode-ispell-word-completion nil)
+  (tab-always-indent 'complete)
+  (enable-recursive-minibuffers t)
+  (context-menu-mode t)
+  (completion-ignore-case t)
+  (corfu-auto nil)
+  (corfu-auto-delay nil)
+  (corfu-cycle t)
+  (corfu-preselect 'prompt)
+  :bind
+  (:map corfu-map
+        ("C-SPC" . corfu-info-documentation)
+        ("TAB" . corfu-next)
+        ([tab] . corfu-next)
+        ("S-TAB" . corfu-previous)
+        ([backtab] . corfu-previous))
   :config
-  (add-hook 'after-init-hook 'company-tng-mode)
-  (add-hook 'after-init-hook 'global-company-mode)
-  (setq completion-ignore-case t)
-  (setq company-minimum-prefix-length 2)
-  (setq company-idle-delay 0)
-  (setq company-inhibit-inside-symbols t)
-  (setq company-dabbrev-other-buffers t)
-  (setq company-dabbrev-code-other-buffers t)
-  (setq company-backends '((company-capf company-dabbrev-code company-files company-yasnippet)))
+  (keymap-set corfu-map "RET" `(menu-item "" nil :filer
+                                          ,(lambda (&optional _)
+                                             (and (derived-mode-p 'eshell-mode 'comint-mode)
+                                                  #'corfu-send))))
+  :init
+  (corfu-history-mode t)
+  (global-corfu-mode))
+
+(use-package cape
+  :ensure t
+  ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+  ;; Press C-c p ? to for help.
+  :commands (cape-dabbrev cape-file cape-elisp-block )
+  :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+  ;; Alternatively bind Cape commands individually.
+  ;; :bind (("C-c p d" . cape-dabbrev)
+  ;;        ("C-c p h" . cape-history)
+  ;;        ("C-c p f" . cape-file)
+  ;;        ...)
+  :config
   (setq company-dabbrev-code-ignore-case nil)
-  (setq company-files-exclusions '(".git/" ".DS_Store" "makefile"))
-  (setq company-dabbrev-downcase nil)
-  (setq company-dabbrev-ignore-case t)
-  ;; (setq company-transformers '(delete-consecutive-dups
-  ;;                              company-sort-by-occurrence
-  ;;                              company-sort-prefer-same-case-prefix))
-  (define-key company-active-map (kbd "C-n") nil)
-  (define-key company-active-map (kbd "C-p") nil)
-  (setq company-tooltip-align-annotations t))
+  :init
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  ;; (add-hook 'completion-at-point-functions (cape-capf-super #'cape-dabbrev #'cape-history #'cape-elisp-block #'cape-history #'cape-dict))
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-history)
+  (add-hook 'completion-at-point-functions #'cape-dict)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block)
+  )
 
 (use-package vertico
   :ensure t
@@ -534,11 +592,21 @@
   :config
   (prescient-persist-mode 1))
 
-(use-package company-prescient
+;; (use-package company-prescient
+;;   :ensure t
+;;   :config
+;;   (setq company-prescient-sort-length-enable nil)
+;;   (company-prescient-mode 1))
+
+(use-package corfu-prescient
   :ensure t
+  :after corfu prescient
+  :custom
+  (corfu-prescient-enable-sorting t)
+  (corfu-prescient-override-sorting nil)
+  (corfu-prescient-enable-filtering nil)
   :config
-  (setq company-prescient-sort-length-enable nil)
-  (company-prescient-mode 1))
+  (corfu-prescient-mode 1))
 
 ;; (use-package flycheck
 ;;   :ensure t
