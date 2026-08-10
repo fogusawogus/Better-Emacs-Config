@@ -26,6 +26,7 @@
 (setq menu-bar-mode nil)
 (global-visual-line-mode t)
 (menu-bar-mode -1)
+(setq scroll-preserve-screen-position nil)
 
 (straight-use-package '(project :type built-in))
 (straight-use-package '(xref :type built-in))
@@ -296,8 +297,8 @@
   ;; (add-hook 'completion-at-point-functions (cape-capf-super #'cape-dabbrev #'cape-history #'cape-elisp-block #'cape-history #'cape-dict))
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
-  (add-hook 'completion-at-point-functions #'cape-history)
-  (add-hook 'completion-at-point-functions #'cape-dict)
+  ;; (add-hook 'completion-at-point-functions #'cape-history)
+  ;; (add-hook 'completion-at-point-functions #'cape-dict)
   (add-hook 'completion-at-point-functions #'cape-elisp-block)
   )
 
