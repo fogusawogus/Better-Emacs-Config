@@ -21,7 +21,7 @@
 (setq save-interprogram-paste-before-kill t)
 ;; (setq meow-use-clipboard t)
 ;; (setq meow-keypad-describe-delay 10)
-(global-whitespace-mode 1)
+;; (global-whitespace-mode 1)
 (setq eglot-ignored-server-capabilities '(:codeActionProvider :inlayHintProvider :documentHighlightProvider :colorProvider :hoverProdiver :codeLensProvider :semanticTokensProvider))
 (setq menu-bar-mode nil)
 (global-visual-line-mode t)
@@ -615,10 +615,11 @@
 ;;   (setq flycheck-check-syntax-automatically '(save))
 ;;   (setq flycheck-highlighting-mode nil))
 
-(use-package eglot-booster
-  :straight (eglot-booster :type git :host nil :repo "https://github.com/jdtsmith/eglot-booster")
-  :after eglot
-  :config (eglot-booster-mode))
+;; apparently new emacs json parsers are fast enough
+;; (use-package eglot-booster
+;;   :straight (eglot-booster :type git :host nil :repo "https://github.com/jdtsmith/eglot-booster")
+;;   :after eglot
+;;   :config (eglot-booster-mode))
 
 ;; (use-package flycheck-eglot
 ;;   :ensure t
