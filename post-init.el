@@ -911,3 +911,7 @@
 ;;   (which-key-idle-secondary-delay 0.25)
 ;;   (which-key-add-column-padding 1)
 ;;   (which-key-max-description-length 40))
+
+(use-package ace-window
+  :ensure t
+  :bind (("M-o" . ace-window)))
